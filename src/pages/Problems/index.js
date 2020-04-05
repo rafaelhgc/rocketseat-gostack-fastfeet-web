@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-
+import { toast } from 'react-toastify';
+import { useSelector, useDispatch } from 'react-redux';
 import { MdMoreHoriz, MdDelete, MdRemoveRedEye } from 'react-icons/md';
-
 import api from '../../services/api';
-
 import { Container, Header, Menu } from './styles';
+import Modal from '../../components/Modal';
+import { toogleModal } from '../../store/modules/modal/actions';
 
 export default function Problems() {
+  const dispatch = useDispatch();
   const [problems, setProblems] = useState([]);
+  const [problem, setProblem] = useState(null);
+
+  const modalVisibility = useSelector((state) => state.modal.visible);
 
   useEffect(() => {
     async function load() {
@@ -30,6 +35,18 @@ export default function Problems() {
     setProblems(data);
   }
 
+  async function handleCancelDelivery(issue) {
+    await api.delete(`deliveries/${issue.delivery.id}`);
+    handleEnableMenu(issue.id);
+    toast.success('Entrega cancelada com sucesso');
+  }
+
+  function handleDetails(issue) {
+    setProblem(issue.description);
+    handleEnableMenu(issue.id);
+    dispatch(toogleModal(true));
+  }
+
   return (
     <Container>
       <Header>
@@ -41,7 +58,9 @@ export default function Problems() {
             <tr>
               <th>ID</th>
               <th>Problema</th>
-              <th className="center">Ações</th>
+              <th className="center" width="5%">
+                Ações
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -51,18 +70,21 @@ export default function Problems() {
                   <span>#</span>
                   <span>{r.id}</span>
                 </td>
-                <td>{r.description}</td>
+                <td className="overflow">{r.description}</td>
                 <td className="center">
                   <button type="button" onClick={() => handleEnableMenu(r.id)}>
                     <MdMoreHoriz color="#999" size={26} />
                   </button>
                   <Menu enabled={r.enabled}>
-                    <button type="button">
+                    <button type="button" onClick={() => handleDetails(r)}>
                       <MdRemoveRedEye color="#9b59b6" size={16} />
                       <span>Visualizar</span>
                     </button>
 
-                    <button type="button">
+                    <button
+                      type="button"
+                      onClick={() => handleCancelDelivery(r)}
+                    >
                       <MdDelete color="#e74c3c" size={16} />
                       <span>Cancelar entrega</span>
                     </button>
@@ -72,6 +94,11 @@ export default function Problems() {
             ))}
           </tbody>
         </table>
+      )}
+      {modalVisibility && (
+        <Modal>
+          <p>{problem}</p>
+        </Modal>
       )}
     </Container>
   );

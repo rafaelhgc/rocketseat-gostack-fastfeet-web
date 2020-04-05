@@ -59,8 +59,8 @@ export const Header = styled.header`
 
 export const Menu = styled.div`
   position: absolute;
-  bottom: -105px;
-  right: 0px;
+  bottom: -56px;
+  right: 12px;
   background-color: #fff;
   border: 1px solid #eee;
   border-radius: 2px;

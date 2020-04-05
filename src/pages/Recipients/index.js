@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
+import { toast } from 'react-toastify';
 import { MdMoreHoriz, MdEdit, MdDelete, MdAdd, MdSearch } from 'react-icons/md';
 
 import api from '../../services/api';
+import history from '../../services/history';
 
 import { Container, Header, Menu, Controls, Field } from './styles';
 
 export default function Recipients() {
   const [name, setName] = useState('');
-  const [recipients, setrecipients] = useState([]);
+  const [recipients, setRecipients] = useState([]);
 
   function concatAddress(r) {
     return `${r.street_address}, ${r.number}, ${r.city} - ${r.state}`;
@@ -17,17 +18,27 @@ export default function Recipients() {
 
   useEffect(() => {
     async function load() {
-      const res = await api.get('recipients');
+      const res = await api.get(`recipients?q=${name}`);
       const data = res.data.map((i) => ({
         ...i,
         enabled: false,
         address: concatAddress(i),
       }));
-      setrecipients(data);
+      setRecipients(data);
     }
 
     load();
   }, [name]);
+
+  function handleEdit(id) {
+    history.push(`/recipients/${id}`);
+  }
+
+  async function handleRemove(id) {
+    await api.delete(`/recipients/${id}`);
+    setRecipients(recipients.filter((d) => d.id !== id));
+    toast.success('Entregador removido com sucesso');
+  }
 
   function handleEnableMenu(id) {
     const data = recipients.map((i) => ({
@@ -35,7 +46,7 @@ export default function Recipients() {
       enabled: i.enabled ? false : id === i.id,
       address: concatAddress(i),
     }));
-    setrecipients(data);
+    setRecipients(data);
   }
 
   return (
@@ -55,7 +66,7 @@ export default function Recipients() {
               onChange={(e) => setName(e.target.value)}
             />
           </Field>
-          <Link to="/">
+          <Link to="/recipients/new">
             <MdAdd color="#fff" size={20} />
             <span>Cadastrar</span>
           </Link>
@@ -85,14 +96,14 @@ export default function Recipients() {
                     <MdMoreHoriz color="#999" size={26} />
                   </button>
                   <Menu enabled={r.enabled}>
-                    <button type="button">
+                    <button type="button" onClick={() => handleEdit(r.id)}>
                       <MdEdit color="#3498db" size={16} />
                       <span>Editar</span>
                     </button>
 
-                    <button type="button">
+                    <button type="button" onClick={() => handleRemove(r.id)}>
                       <MdDelete color="#e74c3c" size={16} />
-                      <span>Cancelar</span>
+                      <span>Remover</span>
                     </button>
                   </Menu>
                 </td>

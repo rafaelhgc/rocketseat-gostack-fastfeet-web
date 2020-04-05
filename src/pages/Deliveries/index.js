@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux';
 import { format, parseISO } from 'date-fns';
 import { pt } from 'date-fns/locale';
@@ -13,6 +14,7 @@ import {
 } from 'react-icons/md';
 
 import api from '../../services/api';
+import history from '../../services/history';
 import Modal from '../../components/Modal';
 import { toogleModal } from '../../store/modules/modal/actions';
 
@@ -59,6 +61,16 @@ export default function Deliveries() {
     dispatch(toogleModal(true));
   }
 
+  async function handleEdit(id) {
+    history.push(`/deliveries/${id}`);
+  }
+
+  async function handleCancel(id) {
+    await api.delete(`deliveries/${id}`);
+    handleEnableMenu(id);
+    toast.success('Entrega cancelada com sucesso');
+  }
+
   return (
     <Container>
       <Header>
@@ -76,7 +88,7 @@ export default function Deliveries() {
               onChange={(e) => setProduct(e.target.value)}
             />
           </Field>
-          <Link to="/">
+          <Link to="/deliveries/new">
             <MdAdd color="#fff" size={20} />
             <span>Cadastrar</span>
           </Link>
@@ -92,7 +104,9 @@ export default function Deliveries() {
               <th>Cidade</th>
               <th>Estado</th>
               <th>Status</th>
-              <th className="center">Ações</th>
+              <th className="center" width="5%">
+                Ações
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -118,13 +132,11 @@ export default function Deliveries() {
                       <MdRemoveRedEye color="#9b59b6" size={16} />
                       <span>Visualizar</span>
                     </button>
-
-                    <button type="button">
+                    <button type="button" onClick={() => handleEdit(d.id)}>
                       <MdEdit color="#3498db" size={16} />
                       <span>Editar</span>
                     </button>
-
-                    <button type="button">
+                    <button type="button" onClick={() => handleCancel(d.id)}>
                       <MdDelete color="#e74c3c" size={16} />
                       <span>Cancelar</span>
                     </button>

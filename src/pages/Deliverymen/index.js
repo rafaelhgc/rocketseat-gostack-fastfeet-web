@@ -16,19 +16,19 @@ export default function DeliverymenForm() {
   useEffect(() => {
     async function load() {
       const res = await api.get('deliverymen', { params: { q: name } });
-      const data = res.data.map((i) => ({ ...i, enabled: false }));
-      setDeliverymen(data);
+      setDeliverymen(res.data.map((i) => ({ ...i, enabled: false })));
     }
 
     load();
   }, [name]);
 
   function handleEnableMenu(id) {
-    const data = deliverymen.map((i) => ({
-      ...i,
-      enabled: i.enabled ? false : id === i.id,
-    }));
-    setDeliverymen(data);
+    setDeliverymen(
+      deliverymen.map((i) => ({
+        ...i,
+        enabled: i.enabled ? false : id === i.id,
+      }))
+    );
   }
 
   function handleEdit(id) {
@@ -72,7 +72,9 @@ export default function DeliverymenForm() {
               <th>Foto</th>
               <th>Nome</th>
               <th>E-mail</th>
-              <th className="center">Ações</th>
+              <th className="center" width="5%">
+                Ações
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -102,7 +104,7 @@ export default function DeliverymenForm() {
 
                     <button type="button" onClick={() => handleRemove(d.id)}>
                       <MdDelete color="#e74c3c" size={16} />
-                      <span>Cancelar</span>
+                      <span>Remover</span>
                     </button>
                   </Menu>
                 </td>

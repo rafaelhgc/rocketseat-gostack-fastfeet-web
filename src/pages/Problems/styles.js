@@ -35,6 +35,13 @@ export const Container = styled.div`
         position: relative;
       }
 
+      td.overflow {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       td.center {
         text-align: center;
 
@@ -59,8 +66,8 @@ export const Header = styled.header`
 
 export const Menu = styled.div`
   position: absolute;
-  bottom: -105px;
-  right: 0px;
+  bottom: -62px;
+  right: -52px;
   background-color: #fff;
   border: 1px solid #eee;
   border-radius: 2px;
@@ -77,7 +84,7 @@ export const Menu = styled.div`
     display: flex;
     padding: 10px;
     border-bottom: 1px solid #eee;
-    width: 100px;
+    width: 150px;
 
     :last-child {
       border-bottom: 0;

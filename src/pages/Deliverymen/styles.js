@@ -31,7 +31,7 @@ export const Container = styled.div`
       }
 
       td {
-        padding: 15px;
+        padding: 10px 15px;
         position: relative;
       }
 
@@ -47,8 +47,8 @@ export const Container = styled.div`
       }
 
       img {
-        width: 48px;
-        height: 48px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
       }
     }

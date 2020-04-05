@@ -3,7 +3,9 @@ import * as yup from 'yup';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { MdChevronLeft, MdCheck } from 'react-icons/md';
-import { Form, Input } from '@rocketseat/unform';
+import { Form } from '@unform/web';
+import Input from '../../components/Input';
+import { Row } from '../../components/Input/Row';
 
 import api from '../../services/api';
 import history from '../../services/history';
@@ -20,7 +22,7 @@ const schema = yup.object().shape({
     .required('O campo e-mail é obrigatório'),
 });
 
-export default function Deliverymen() {
+export default function DeliverymenForm() {
   const { deliverymanId } = useParams();
   const [deliveryman, setDeliveryman] = useState(null);
 
@@ -35,21 +37,32 @@ export default function Deliverymen() {
     load();
   }, [deliverymanId]);
 
+  function handleBack() {
+    history.push('/deliverymen');
+  }
+
   async function handleSubmit(data) {
     try {
+      await schema.validate(data, { abortEarly: false });
+
       if (deliverymanId) {
-        await api.put(`/deliverymen/${deliverymanId}`, data).then().catch();
+        await api.put(`/deliverymen/${deliverymanId}`, data);
       } else {
-        await api.post('/deliverymen', data).then().catch();
+        await api.post('/deliverymen', data);
       }
 
       history.push('/deliverymen');
     } catch (e) {
-      toast.error(
-        `Erro ao ${
-          deliverymanId ? 'atualizar' : 'cadastrar'
-        } entregador. Verifique os dados`
-      );
+      if (e.inner) {
+        const errors = e.inner.map((error) => error.message);
+        alert(errors.join('\n\r'));
+      } else {
+        toast.error(
+          `Erro ao ${
+            deliverymanId ? 'atualizar' : 'cadastrar'
+          } entregador. Verifique os dados`
+        );
+      }
     }
   }
 
@@ -63,7 +76,7 @@ export default function Deliverymen() {
           </h1>
 
           <Controls>
-            <Control type="button" muted>
+            <Control type="button" muted onClick={handleBack}>
               <MdChevronLeft color="#fff" size={18} />
               <span>Voltar</span>
             </Control>
@@ -76,14 +89,17 @@ export default function Deliverymen() {
         </Header>
         <Content>
           <AvatarInput name="avatar_id" />
-          <label>
-            Nome
-            <Input name="name" placeholder="Nome completo" />
-          </label>
-          <label>
-            E-mail
-            <Input name="email" type="email" placeholder="Endereço de e-mail" />
-          </label>
+          <Row>
+            <Input name="name" placeholder="Nome completo" label="Nome" />
+          </Row>
+          <Row>
+            <Input
+              name="email"
+              type="email"
+              placeholder="Endereço de e-mail"
+              label="E-mail"
+            />
+          </Row>
         </Content>
       </Form>
     </Container>
