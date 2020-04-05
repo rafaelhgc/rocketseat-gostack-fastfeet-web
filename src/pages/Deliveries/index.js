@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { format, parseISO } from 'date-fns';
+import { pt } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
-
 import {
   MdMoreHoriz,
   MdRemoveRedEye,
@@ -11,12 +13,26 @@ import {
 } from 'react-icons/md';
 
 import api from '../../services/api';
+import Modal from '../../components/Modal';
+import { toogleModal } from '../../store/modules/modal/actions';
 
-import { Container, Header, Status, Menu, Controls, Field } from './styles';
+import {
+  Container,
+  Header,
+  Status,
+  Menu,
+  Controls,
+  Field,
+  Details,
+} from './styles';
 
 export default function Deliveries() {
+  const dispatch = useDispatch();
   const [product, setProduct] = useState('');
   const [deliveries, setDeliveries] = useState([]);
+  const [delivery, setDelivery] = useState(null);
+
+  const modalVisibility = useSelector((state) => state.modal.visible);
 
   useEffect(() => {
     async function load() {
@@ -34,6 +50,13 @@ export default function Deliveries() {
       enabled: i.enabled ? false : id === i.id,
     }));
     setDeliveries(data);
+  }
+
+  async function handleDetails(id) {
+    const res = await api.get(`/deliveries/${id}`);
+    setDelivery(res.data);
+    handleEnableMenu(id);
+    dispatch(toogleModal(true));
   }
 
   return (
@@ -91,7 +114,7 @@ export default function Deliveries() {
                     <MdMoreHoriz color="#999" size={26} />
                   </button>
                   <Menu enabled={d.enabled}>
-                    <button type="button">
+                    <button type="button" onClick={() => handleDetails(d.id)}>
                       <MdRemoveRedEye color="#9b59b6" size={16} />
                       <span>Visualizar</span>
                     </button>
@@ -111,6 +134,45 @@ export default function Deliveries() {
             ))}
           </tbody>
         </table>
+      )}
+      {modalVisibility && (
+        <Modal>
+          <Details>
+            <h4>Informações da encomenda</h4>
+            <p>
+              {`${delivery.recipient.street_address}, ${delivery.recipient.number}`}
+            </p>
+            <p>{`${delivery.recipient.city} - ${delivery.recipient.state}`}</p>
+            <p>{`${delivery.recipient.zip_code}`}</p>
+            <hr />
+            <h4>Datas</h4>
+            <p>
+              <strong>Retirada </strong>
+              {delivery.start_date
+                ? format(parseISO(delivery.start_date), "dd'/'MM'/'yyyy", {
+                    locale: pt,
+                  })
+                : '-'}
+            </p>
+            <p>
+              <strong>Entrega </strong>
+              {delivery.end_date
+                ? format(parseISO(delivery.end_date), "dd'/'MM'/'yyyy", {
+                    locale: pt,
+                  })
+                : '-'}
+            </p>
+            <hr />
+            {delivery.signature && (
+              <div>
+                <h4>Assinatura do Destinatário</h4>
+                <div className="signature">
+                  <img src={delivery.signature.url} alt="signature" />
+                </div>
+              </div>
+            )}
+          </Details>
+        </Modal>
       )}
     </Container>
   );

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
+import { toast } from 'react-toastify';
 import { MdMoreHoriz, MdEdit, MdDelete, MdAdd, MdSearch } from 'react-icons/md';
 
 import api from '../../services/api';
+import history from '../../services/history';
 
 import { Container, Header, Menu, Controls, Field } from './styles';
 
-export default function Deliverymen() {
+export default function DeliverymenForm() {
+  const defaultAvatar = 'https://api.adorable.io/avatars/50/abott@adorable.png';
   const [name, setName] = useState('');
   const [deliverymen, setDeliverymen] = useState([]);
 
@@ -29,6 +31,16 @@ export default function Deliverymen() {
     setDeliverymen(data);
   }
 
+  function handleEdit(id) {
+    history.push(`/deliverymen/${id}`);
+  }
+
+  async function handleRemove(id) {
+    await api.delete(`/deliverymen/${id}`);
+    setDeliverymen(deliverymen.filter((d) => d.id !== id));
+    toast.success('Entregador removido com sucesso');
+  }
+
   return (
     <Container>
       <Header>
@@ -46,7 +58,7 @@ export default function Deliverymen() {
               onChange={(e) => setName(e.target.value)}
             />
           </Field>
-          <Link to="/">
+          <Link to="/deliverymen/new">
             <MdAdd color="#fff" size={20} />
             <span>Cadastrar</span>
           </Link>
@@ -70,7 +82,12 @@ export default function Deliverymen() {
                   <span>#</span>
                   <span>{d.id}</span>
                 </td>
-                <td />
+                <td>
+                  <img
+                    src={d.avatar ? d.avatar.url : defaultAvatar}
+                    alt={d.name}
+                  />
+                </td>
                 <td>{d.name}</td>
                 <td>{d.email}</td>
                 <td className="center">
@@ -78,12 +95,12 @@ export default function Deliverymen() {
                     <MdMoreHoriz color="#999" size={26} />
                   </button>
                   <Menu enabled={d.enabled}>
-                    <button type="button">
+                    <button type="button" onClick={() => handleEdit(d.id)}>
                       <MdEdit color="#3498db" size={16} />
                       <span>Editar</span>
                     </button>
 
-                    <button type="button">
+                    <button type="button" onClick={() => handleRemove(d.id)}>
                       <MdDelete color="#e74c3c" size={16} />
                       <span>Cancelar</span>
                     </button>

@@ -170,3 +170,37 @@ export const Field = styled.div`
     text-align: center;
   }
 `;
+
+export const Details = styled.div`
+  padding: 20px;
+
+  h4 {
+    margin-bottom: 10px;
+    color: #444;
+  }
+
+  p {
+    margin-bottom: 5px;
+    color: #777;
+
+    strong {
+      color: #444;
+    }
+  }
+
+  hr {
+    height: 1px;
+    border: 0;
+    margin: 10px 0;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .signature {
+    text-align: center;
+
+    img {
+      max-width: 100%;
+      max-height: 100px;
+    }
+  }
+`;

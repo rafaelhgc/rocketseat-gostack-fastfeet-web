@@ -45,6 +45,12 @@ export const Container = styled.div`
           border: 0;
         }
       }
+
+      img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+      }
     }
   }
 `;
@@ -59,8 +65,8 @@ export const Header = styled.header`
 
 export const Menu = styled.div`
   position: absolute;
-  bottom: -105px;
-  right: 0px;
+  bottom: -56px;
+  right: 12px;
   background-color: #fff;
   border: 1px solid #eee;
   border-radius: 2px;
