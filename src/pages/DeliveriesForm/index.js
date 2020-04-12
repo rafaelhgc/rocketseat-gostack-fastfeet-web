@@ -4,10 +4,12 @@ import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Form } from '@unform/web';
 import { MdChevronLeft, MdCheck } from 'react-icons/md';
+
 import api from '../../services/api';
 import history from '../../services/history';
 import AsyncSelect from './Select';
 import Input from '../../components/Input';
+
 import { Container, Header, Controls, Content, Control } from './styles';
 
 const schema = yup.object().shape({
@@ -19,22 +21,28 @@ const schema = yup.object().shape({
 export default function DeliveriesForm() {
   const { deliveryId } = useParams();
   const [delivery, setDelivery] = useState(null);
-  const [deliveryman, setDeliveryman] = useState();
-  const [recipient, setRecipient] = useState();
+  const [recipients, setRecipients] = useState([]);
+  const [delverymen, setDelverymen] = useState([]);
+  const [selectedDeliveryman, setSelectedDeliveryman] = useState('');
+  const [selectedRecipient, setSelectedRecipient] = useState('');
+
+  function mapDefaults(arr) {
+    return arr.map((i) => ({
+      id: i.id,
+      value: i.id,
+      label: i.name,
+    }));
+  }
 
   useEffect(() => {
     async function load() {
       if (deliveryId) {
         const res = await api.get(`deliveries/${deliveryId}`);
         setDelivery(res.data);
-        setDeliveryman({
-          value: res.data.deliveryman.id,
-          label: res.data.deliveryman.name,
-        });
-        setRecipient({
-          value: res.data.recipient.id,
-          label: res.data.recipient.name,
-        });
+        setRecipients(mapDefaults([res.data.recipient]));
+        setDelverymen(mapDefaults([res.data.deliveryman]));
+        setSelectedRecipient(res.data.recipient.id);
+        setSelectedDeliveryman(res.data.deliveryman.id);
       }
     }
 
@@ -68,7 +76,6 @@ export default function DeliveriesForm() {
     } catch (e) {
       if (e.inner) {
         const errors = e.inner.map((error) => error.message);
-        alert(errors.join('\n\r'));
       } else {
         toast.error(
           `Erro ao ${
@@ -106,8 +113,9 @@ export default function DeliveriesForm() {
               Destinatário
               <AsyncSelect
                 name="recipient_id"
-                defaultValue={recipient ? recipient.value : ''}
-                defaultOptions={[recipient]}
+                onChange={(e) => setSelectedRecipient(e.id)}
+                selected={selectedRecipient}
+                defaultOptions={recipients}
                 loadOptions={handleRecipientChange}
               />
             </label>
@@ -116,8 +124,9 @@ export default function DeliveriesForm() {
               Entregador
               <AsyncSelect
                 name="deliveryman_id"
-                defaultValue={deliveryman ? deliveryman.value : ''}
-                defaultOptions={[deliveryman]}
+                onChange={(e) => setSelectedDeliveryman(e.id)}
+                selected={selectedDeliveryman}
+                defaultOptions={delverymen}
                 loadOptions={handleDeliverymanChange}
               />
             </label>

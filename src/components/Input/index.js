@@ -8,8 +8,6 @@ export default function Input({ name, label, cols = '1', ...rest }) {
   const inputRef = useRef(null);
   const { fieldName, defaultValue, registerField, error } = useField(name);
 
-  console.log(error);
-
   useEffect(() => {
     registerField({
       name: fieldName,
