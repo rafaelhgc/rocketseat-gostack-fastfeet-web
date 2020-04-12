@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { Field } from './styles';
 
-export default function Input({ name, label, cols = '1', ...rest }) {
+export default function Input({ name, label, cols, ...rest }) {
   const inputRef = useRef(null);
   const { fieldName, defaultValue, registerField, error } = useField(name);
 
@@ -34,4 +34,8 @@ Input.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   cols: PropTypes.string,
+};
+
+Input.defaultProps = {
+  cols: '1',
 };

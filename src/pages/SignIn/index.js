@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { Form } from '@unform/web';
@@ -13,6 +13,7 @@ const schema = yup.object().shape({
 });
 
 export default function SignIn() {
+  const formRef = useRef();
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.auth.loading);
 
@@ -20,10 +21,14 @@ export default function SignIn() {
     try {
       await schema.validate({ email, password }, { abortEarly: false });
       dispatch(signInRequest(email, password));
-    } catch (e) {
-      if (e.inner) {
-        const errors = e.inner.map((error) => error.message);
-        alert(errors.join('\n\r'));
+    } catch (err) {
+      const validationErrors = {};
+
+      if (err instanceof yup.ValidationError) {
+        err.inner.forEach((error) => {
+          validationErrors[error.path] = error.message;
+        });
+        formRef.current.setErrors(validationErrors);
       }
     }
   }
@@ -33,7 +38,7 @@ export default function SignIn() {
       <div className="brand">
         <img src={logo} alt="Fastfeet" />
       </div>
-      <Form onSubmit={onSubmit}>
+      <Form onSubmit={onSubmit} ref={formRef}>
         <Row>
           <Input
             id="email"

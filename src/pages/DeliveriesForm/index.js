@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as yup from 'yup';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -7,8 +7,9 @@ import { MdChevronLeft, MdCheck } from 'react-icons/md';
 
 import api from '../../services/api';
 import history from '../../services/history';
-import AsyncSelect from './Select';
+import AsyncSelect from '../../components/Select';
 import Input from '../../components/Input';
+import { Row } from '../../components/Input/Row';
 
 import { Container, Header, Controls, Content, Control } from './styles';
 
@@ -19,12 +20,11 @@ const schema = yup.object().shape({
 });
 
 export default function DeliveriesForm() {
+  const formRef = useRef(null);
   const { deliveryId } = useParams();
   const [delivery, setDelivery] = useState(null);
   const [recipients, setRecipients] = useState([]);
-  const [delverymen, setDelverymen] = useState([]);
-  const [selectedDeliveryman, setSelectedDeliveryman] = useState('');
-  const [selectedRecipient, setSelectedRecipient] = useState('');
+  const [deliverymen, setDeliverymen] = useState([]);
 
   function mapDefaults(arr) {
     return arr.map((i) => ({
@@ -40,9 +40,7 @@ export default function DeliveriesForm() {
         const res = await api.get(`deliveries/${deliveryId}`);
         setDelivery(res.data);
         setRecipients(mapDefaults([res.data.recipient]));
-        setDelverymen(mapDefaults([res.data.deliveryman]));
-        setSelectedRecipient(res.data.recipient.id);
-        setSelectedDeliveryman(res.data.deliveryman.id);
+        setDeliverymen(mapDefaults([res.data.deliveryman]));
       }
     }
 
@@ -66,6 +64,7 @@ export default function DeliveriesForm() {
   async function handleSubmit(data) {
     try {
       await schema.validate(data, { abortEarly: false });
+
       if (deliveryId) {
         await api.put(`/deliveries/${deliveryId}`, data);
       } else {
@@ -73,9 +72,14 @@ export default function DeliveriesForm() {
       }
 
       history.push('/deliveries');
-    } catch (e) {
-      if (e.inner) {
-        const errors = e.inner.map((error) => error.message);
+    } catch (err) {
+      const validationErrors = {};
+
+      if (err instanceof yup.ValidationError) {
+        err.inner.forEach((error) => {
+          validationErrors[error.path] = error.message;
+        });
+        formRef.current.setErrors(validationErrors);
       } else {
         toast.error(
           `Erro ao ${
@@ -88,7 +92,7 @@ export default function DeliveriesForm() {
 
   return (
     <Container>
-      <Form initialData={delivery} onSubmit={handleSubmit} schema={schema}>
+      <Form initialData={delivery} onSubmit={handleSubmit} ref={formRef}>
         <Header>
           <h1>
             <span>{deliveryId ? 'Edição ' : 'Cadastro '}</span>
@@ -108,40 +112,36 @@ export default function DeliveriesForm() {
         </Header>
 
         <Content>
-          <div className="row">
-            <label className="col col-1">
-              Destinatário
-              <AsyncSelect
-                name="recipient_id"
-                onChange={(e) => setSelectedRecipient(e.id)}
-                selected={selectedRecipient}
-                defaultOptions={recipients}
-                loadOptions={handleRecipientChange}
-              />
-            </label>
+          <Row>
+            <AsyncSelect
+              placeholder="Selecione um destinatário"
+              label="Destinatário"
+              cacheOptions
+              name="recipient_id"
+              loadOptions={handleRecipientChange}
+              defaultOptions={recipients}
+              value={recipients[0]}
+            />
 
-            <label className="col col-1">
-              Entregador
-              <AsyncSelect
-                name="deliveryman_id"
-                onChange={(e) => setSelectedDeliveryman(e.id)}
-                selected={selectedDeliveryman}
-                defaultOptions={delverymen}
-                loadOptions={handleDeliverymanChange}
-              />
-            </label>
-          </div>
+            <AsyncSelect
+              placeholder="Selecione um entregador"
+              label="Entregador"
+              cacheOptions
+              name="deliveryman_id"
+              loadOptions={handleDeliverymanChange}
+              defaultOptions={deliverymen}
+              value={deliverymen[0]}
+            />
+          </Row>
 
-          <div className="row">
-            <label className="col col-1">
-              Produto
-              <Input
-                name="product"
-                type="text"
-                placeholder="Descrição do produto"
-              />
-            </label>
-          </div>
+          <Row>
+            <Input
+              label="Produto"
+              name="product"
+              type="text"
+              placeholder="Descrição do produto"
+            />
+          </Row>
         </Content>
       </Form>
     </Container>

@@ -9,7 +9,6 @@ import history from '../../services/history';
 import { Container, Header, Menu, Controls, Field } from './styles';
 
 export default function DeliverymenForm() {
-  const defaultAvatar = 'https://api.adorable.io/avatars/50/abott@adorable.png';
   const [name, setName] = useState('');
   const [deliverymen, setDeliverymen] = useState([]);
 
@@ -86,7 +85,11 @@ export default function DeliverymenForm() {
                 </td>
                 <td>
                   <img
-                    src={d.avatar ? d.avatar.url : defaultAvatar}
+                    src={
+                      d.avatar
+                        ? d.avatar.url
+                        : `https://api.adorable.io/avatars/50/${d.id}.png`
+                    }
                     alt={d.name}
                   />
                 </td>

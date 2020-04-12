@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as yup from 'yup';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -23,6 +23,7 @@ const schema = yup.object().shape({
 });
 
 export default function DeliverymenForm() {
+  const formRef = useRef();
   const { deliverymanId } = useParams();
   const [deliveryman, setDeliveryman] = useState(null);
 
@@ -52,10 +53,14 @@ export default function DeliverymenForm() {
       }
 
       history.push('/deliverymen');
-    } catch (e) {
-      if (e.inner) {
-        const errors = e.inner.map((error) => error.message);
-        alert(errors.join('\n\r'));
+    } catch (err) {
+      const validationErrors = {};
+
+      if (err instanceof yup.ValidationError) {
+        err.inner.forEach((error) => {
+          validationErrors[error.path] = error.message;
+        });
+        formRef.current.setErrors(validationErrors);
       } else {
         toast.error(
           `Erro ao ${
@@ -68,7 +73,7 @@ export default function DeliverymenForm() {
 
   return (
     <Container>
-      <Form initialData={deliveryman} onSubmit={handleSubmit} schema={schema}>
+      <Form initialData={deliveryman} onSubmit={handleSubmit} ref={formRef}>
         <Header>
           <h1>
             <span>{deliverymanId ? 'Edição ' : 'Cadastro '}</span>

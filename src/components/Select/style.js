@@ -1,30 +1,23 @@
 import styled from 'styled-components';
 import Select from 'react-select/async';
 
-export const Container = styled.div`
-  align-items: center;
-  margin-bottom: 30px;
-  justify-content: center;
-  text-align: center;
+export const Field = styled.div`
+  margin-bottom: 20px;
+  width: 100%;
+  flex: ${(props) => props.cols};
+  padding: 0 5px;
 
   label {
-    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #444;
+  }
 
-    &:hover {
-      opacity: 0.3;
-    }
-
-    img {
-      height: 120px;
-      width: 120px;
-      border-radius: 50%;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      background-color: #eee;
-    }
-
-    input {
-      display: none;
-    }
+  .error {
+    display: block;
+    margin-top: 5px;
+    font-weight: bold;
+    color: #ff5252;
   }
 `;
 
@@ -44,10 +37,6 @@ export const SelectInput = styled(Select)`
     height: 44px;
     line-height: 44px;
     padding: 0;
-  }
-
-  .react-select__single-value {
-    top: 66%;
   }
 
   .react-select__placeholder {

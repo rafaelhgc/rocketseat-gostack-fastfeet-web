@@ -26,4 +26,11 @@ export const Field = styled.div`
       color: #999;
     }
   }
+
+  .error {
+    display: block;
+    margin-top: 5px;
+    font-weight: bold;
+    color: #ff5252;
+  }
 `;
