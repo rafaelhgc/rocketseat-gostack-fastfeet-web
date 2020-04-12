@@ -46,9 +46,19 @@ $ yarn
 $ yarn start
 ```
 
-<p>
-O usuário administrador é
-<strong>
-admin@fastfeet.com:123456
-</strong>
-</p>
+<h3>👨‍🔧 Administradores</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>E-mail</th>
+      <th>Senha</th>
+    </tr>
+  </thead>
+  <tboby>
+    <tr>
+      <td>admin@fastfeet.com</td>
+      <td>123456</td>
+    </tr>
+  </tbody>
+</table>
