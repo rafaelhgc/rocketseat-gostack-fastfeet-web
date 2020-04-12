@@ -16,6 +16,8 @@
   </a>
 </p>
 
+<img src=".github/welcome.png" >
+
 <h3>🛠 Pré-requisitos</h3>
 <p>
   A aplicação depende da instalação dos seguintes itens:
