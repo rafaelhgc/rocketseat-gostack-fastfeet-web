@@ -12,6 +12,9 @@ export function* signIn({ payload }) {
     const response = yield call(api.post, '/sessions', { email, password });
     const { id, name, token } = response.data;
 
+    // prevent call before rehydrate without token
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+
     yield put(signInSuccess(id, name, token));
     history.push('/deliveries');
   } catch (e) {
